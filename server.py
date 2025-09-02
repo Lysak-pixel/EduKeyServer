@@ -83,6 +83,10 @@ def receive_log():
 
     return "OK", 200
 
+@app.route("/log", methods=["GET"])
+def log_get():
+    return "POST endpoint tu"
+
 def extract_app_from_log(log_list):
     for item in log_list:
         if isinstance(item, str) and item.startswith("[") and "]" in item:
