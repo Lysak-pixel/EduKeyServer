@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Logy z Keyloggera</title>
+</head>
+<body>
+    <h2>Prijaté logy</h2>
+    <table border="1" cellpadding="5" cellspacing="0">
+        <tr>
+            <th>Čas</th>
+            <th>User ID</th>
+            <th>HWID</th>
+            <th>Aktívne okno</th>
+            <th>Stlačené klávesy</th>
+        </tr>
+        {% for entry in data %}
+        <tr>
+            <td>{{ entry.timestamp }}</td>
+            <td>{{ entry.user_id }}</td>
+            <td>{{ entry.hwid }}</td>
+            <td>{{ entry.window }}</td>
+            <td>{{ entry.keys }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
