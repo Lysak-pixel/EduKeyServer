@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="sk">
 <head>
-    <title>Logy z Keyloggera</title>
+    <meta charset="UTF-8" />
+    <title>Admin panel</title>
 </head>
 <body>
-    <h2>Prijaté logy</h2>
+    <h1>Keylogger - Admin panel</h1>
     <table border="1" cellpadding="5" cellspacing="0">
         <tr>
             <th>Čas</th>
@@ -15,11 +16,11 @@
         </tr>
         {% for entry in data %}
         <tr>
-            <td>{{ entry.timestamp }}</td>
-            <td>{{ entry.user_id }}</td>
-            <td>{{ entry.hwid }}</td>
-            <td>{{ entry.window }}</td>
-            <td>{{ entry.keys }}</td>
+            <td>{{ entry['timestamp'] }}</td>
+            <td>{{ entry['user_id'] }}</td>
+            <td>{{ entry['hwid'] }}</td>
+            <td>{{ entry['window'] }}</td>
+            <td>{{ entry['keys'] }}</td>
         </tr>
         {% endfor %}
     </table>
