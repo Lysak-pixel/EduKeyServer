@@ -12,7 +12,7 @@ def home():
 @app.route('/submit', methods=['POST'])
 def submit():
     json_data = request.json
-    print("Received data:", json_data)  # pridaj log, aby si videl čo prichádza
+    print("Received data:", json_data)  # log pre debug
     json_data['timestamp'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     DATA.append(json_data)
     return {"status": "received"}
@@ -23,13 +23,8 @@ def admin():
         if request.form.get('password') == PASSWORD:
             return render_template("admin.html", data=DATA)
         else:
-            return "Zlé heslo", 403
-    return '''
-        <form method="post" style="background:#000;color:#33ff33;padding:1rem;font-family: monospace; max-width:300px; margin:auto; margin-top:5rem;">
-            Heslo: <input type="password" name="password" required style="background:#000;color:#33ff33; border: 1px solid #33ff33; padding:0.5rem; font-family: monospace;">
-            <input type="submit" value="Prihlásiť sa" style="background:#33ff33;color:#000; border:none; padding:0.5rem 1rem; cursor:pointer; font-weight:bold;">
-        </form>
-    '''
+            return render_template("login.html", error="Zlé heslo")
+    return render_template("login.html")
 
 @app.route('/logout')
 def logout():
@@ -37,6 +32,7 @@ def logout():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
+
 
 
 
