@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>EduKey2025 Login</title>
+<title>Prihlásenie - EduKey2025</title>
 <style>
     body {
-        background-color: #121212;
+        background-color: #000;
         color: #33ff33;
         font-family: "Courier New", Courier, monospace;
         display: flex;
@@ -15,50 +15,55 @@
         align-items: center;
         margin: 0;
     }
-    form {
-        background: #000;
+    .login-box {
+        border: 2px solid #33ff33;
         padding: 2rem;
-        border: 1px solid #33ff33;
-        border-radius: 8px;
-        box-shadow: 0 0 10px #33ff33;
-        width: 300px;
+        width: 320px;
+        text-align: center;
+        box-shadow: 0 0 15px #33ff33;
     }
-    input[type=text], input[type=password] {
-        width: 100%;
-        padding: 0.5rem;
-        margin: 0.5rem 0 1rem 0;
-        background: #111;
-        border: 1px solid #33ff33;
+    input[type="password"] {
+        background: #000;
         color: #33ff33;
-        font-family: monospace;
-    }
-    input[type=submit] {
+        border: 1px solid #33ff33;
+        padding: 0.5rem;
         width: 100%;
-        background: #33ff33;
-        border: none;
-        color: black;
-        font-weight: bold;
-        padding: 0.7rem;
-        cursor: pointer;
         font-family: monospace;
+        font-size: 1.1rem;
+        margin: 1rem 0;
+        outline: none;
+    }
+    input[type="submit"] {
+        background: #33ff33;
+        color: #000;
+        border: none;
+        padding: 0.5rem 1rem;
+        font-weight: bold;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    input[type="submit"]:hover {
+        background-color: #2ecc40;
     }
     .error {
-        color: red;
-        margin-bottom: 1rem;
+        color: #ff3333;
         font-weight: bold;
-        text-align: center;
+        margin-bottom: 1rem;
+        text-shadow: 0 0 5px #ff3333;
     }
 </style>
 </head>
 <body>
-    <form method="post">
-        <h2>Prihlásenie</h2>
+    <div class="login-box">
+        <h2>Prihlásenie do EduKey2025</h2>
         {% if error %}
-        <div class="error">{{ error }}</div>
+            <div class="error">{{ error }}</div>
         {% endif %}
-        <input type="text" name="username" placeholder="Používateľské meno" required />
-        <input type="password" name="password" placeholder="Heslo" required />
-        <input type="submit" value="Prihlásiť sa" />
-    </form>
+        <form method="post">
+            <input type="password" name="password" placeholder="Zadaj heslo" required autofocus />
+            <input type="submit" value="Prihlásiť sa" />
+        </form>
+    </div>
 </body>
 </html>
