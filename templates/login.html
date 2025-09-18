@@ -3,67 +3,148 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Prihlásenie - EduKey2025</title>
+<title>EduKey2025 - Access Terminal</title>
 <style>
-    body {
-        background-color: #000;
-        color: #33ff33;
-        font-family: "Courier New", Courier, monospace;
-        display: flex;
-        height: 100vh;
-        justify-content: center;
-        align-items: center;
-        margin: 0;
-    }
-    .login-box {
-        border: 2px solid #33ff33;
-        padding: 2rem;
-        width: 320px;
-        text-align: center;
-        box-shadow: 0 0 15px #33ff33;
-    }
-    input[type="password"] {
-        background: #000;
-        color: #33ff33;
-        border: 1px solid #33ff33;
-        padding: 0.5rem;
-        width: 100%;
-        font-family: monospace;
-        font-size: 1.1rem;
-        margin: 1rem 0;
-        outline: none;
-    }
-    input[type="submit"] {
-        background: #33ff33;
-        color: #000;
-        border: none;
-        padding: 0.5rem 1rem;
-        font-weight: bold;
-        font-size: 1rem;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-    }
-    input[type="submit"]:hover {
-        background-color: #2ecc40;
-    }
-    .error {
-        color: #ff3333;
-        font-weight: bold;
-        margin-bottom: 1rem;
-        text-shadow: 0 0 5px #ff3333;
-    }
+  @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+  body {
+    margin: 0;
+    height: 100vh;
+    background: #000000;
+    color: #0f0;
+    font-family: 'Share Tech Mono', monospace;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  .login-container {
+    background: rgba(0, 30, 0, 0.9);
+    border: 2px solid #0f0;
+    padding: 2.5rem 3rem;
+    box-shadow: 0 0 20px #0f0;
+    width: 360px;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+  }
+
+  h2 {
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 0 0 8px #0f0;
+  }
+
+  input[type="password"] {
+    background: transparent;
+    border: 2px solid #0f0;
+    color: #0f0;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1.2rem;
+    padding: 0.6rem;
+    width: 100%;
+    outline: none;
+    transition: 0.3s;
+    margin-bottom: 1.2rem;
+    text-align: center;
+  }
+  input[type="password"]:focus {
+    box-shadow: 0 0 15px #0f0;
+    border-color: #0f0;
+  }
+
+  input[type="submit"] {
+    background: #0f0;
+    border: none;
+    color: #000;
+    font-weight: bold;
+    padding: 0.7rem 0;
+    width: 100%;
+    cursor: pointer;
+    letter-spacing: 1.5px;
+    transition: 0.3s;
+    font-size: 1.1rem;
+  }
+  input[type="submit"]:hover {
+    background: #00ff00cc;
+    box-shadow: 0 0 20px #0f0;
+  }
+
+  .error {
+    color: #f00;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    text-shadow: 0 0 5px #f00;
+  }
+
+  /* Matrix-style background effect */
+  canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1;
+    pointer-events: none;
+    user-select: none;
+  }
 </style>
 </head>
 <body>
-    <div class="login-box">
-        <h2>Prihlásenie do EduKey2025</h2>
-        {% if error %}
-            <div class="error">{{ error }}</div>
-        {% endif %}
-        <form method="post">
-            <input type="password" name="password" placeholder="Zadaj heslo" required autofocus />
-            <input type="submit" value="Prihlásiť sa" />
-        </form>
-    </div>
+
+<canvas id="matrix"></canvas>
+
+<div class="login-container">
+  <h2>ACCESS TERMINAL</h2>
+  {% if error %}
+    <div class="error">{{ error }}</div>
+  {% endif %}
+  <form method="post" autocomplete="off" spellcheck="false">
+    <input type="password" name="password" placeholder="Enter Passcode" required autofocus />
+    <input type="submit" value="ENTER" />
+  </form>
+</div>
+
+<script>
+// Matrix rain effect adapted for canvas
+const canvas = document.getElementById('matrix');
+const ctx = canvas.getContext('2d');
+let width = canvas.width = window.innerWidth;
+let height = canvas.height = window.innerHeight;
+
+const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()*&^%";
+const fontSize = 16;
+const columns = Math.floor(width / fontSize);
+const drops = [];
+
+for(let x = 0; x < columns; x++) drops[x] = Math.random() * height;
+
+function draw() {
+  ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+  ctx.fillRect(0, 0, width, height);
+
+  ctx.fillStyle = "#0f0";
+  ctx.font = fontSize + "px 'Share Tech Mono'";
+
+  for(let i = 0; i < drops.length; i++) {
+    const text = letters.charAt(Math.floor(Math.random() * letters.length));
+    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+    if(drops[i] * fontSize > height && Math.random() > 0.975) drops[i] = 0;
+
+    drops[i]++;
+  }
+}
+
+setInterval(draw, 40);
+
+window.addEventListener('resize', () => {
+  width = canvas.width = window.innerWidth;
+  height = canvas.height = window.innerHeight;
+});
+</script>
+
 </body>
 </html>
+
