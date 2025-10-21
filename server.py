@@ -1,8 +1,10 @@
-from flask import Flask, request, jsonify, render_template, redirect, url_for, session
+from flask import Flask, request, jsonify, render_template, redirect, url_for, session, send_file
 from functools import wraps
 import os
 import json
 from datetime import datetime
+from io import BytesIO
+import base64
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "supertajnykluc123")
@@ -33,8 +35,9 @@ def submit_data():
     if not data:
         return jsonify({"error": "No JSON data received"}), 400
     
-    # Pridáme čas prijatia
-    data['received_at'] = datetime.utcnow().isoformat() + "Z"
+    # Pridáme čas prijatia (ak už nie je)
+    if not data.get('received_at'):
+        data['received_at'] = datetime.utcnow().isoformat() + "Z"
     
     # Uložíme dáta
     current_data = load_data()
@@ -49,7 +52,7 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        # Prihlasovacie údaje zmenené podľa požiadavky
+        # Prihlasovacie údaje (u-Admin / 120202810428Jm!)
         if username == 'u-Admin' and password == '120202810428Jm!':
             session['logged_in'] = True
             return redirect(url_for('dashboard'))
@@ -69,11 +72,32 @@ def dashboard():
     # Najnovšie dáta hore
     data = sorted(data, key=lambda x: x.get('received_at', ''), reverse=True)
     return render_template('dashboard.html', data=data)
-    # Ak chceš alternatívny dashboard, zmeň na:
-    # return render_template('dashboard_alt.html', data=data)
+
+@app.route('/detail/<int:index>')
+@login_required
+def detail(index):
+    data = load_data()
+    if index < 0 or index >= len(data):
+        return "Not found", 404
+    entry = data[index]
+    return render_template('dashboard_alt.html', entry=entry, index=index)
+
+# Optional: stiahnuť screenshot ako súbor (ak existuje)
+@app.route('/screenshot/<int:index>')
+@login_required
+def screenshot(index):
+    data = load_data()
+    if index < 0 or index >= len(data):
+        return "Not found", 404
+    entry = data[index]
+    b64 = entry.get('screenshot')
+    if not b64:
+        return "No screenshot", 404
+    img_bytes = base64.b64decode(b64)
+    return send_file(BytesIO(img_bytes), mimetype='image/png', download_name=f"screenshot_{index}.png")
 
 if __name__ == '__main__':
-    app.run(debug=True)
-
+    # Na produkciu nastav debug=False a použij gunicorn
+    app.run(host='0.0.0.0', port=5000, debug=True)
 
 
