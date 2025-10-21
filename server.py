@@ -49,7 +49,7 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        # Jednoduché prihlasovanie, zmenené meno a heslo
+        # Prihlasovacie údaje zmenené podľa požiadavky
         if username == 'u-Admin' and password == '120202810428Jm!':
             session['logged_in'] = True
             return redirect(url_for('dashboard'))
@@ -66,14 +66,14 @@ def logout():
 @login_required
 def dashboard():
     data = load_data()
-    # Pre poriadok zobrazíme najnovšie správy hore
+    # Najnovšie dáta hore
     data = sorted(data, key=lambda x: x.get('received_at', ''), reverse=True)
     return render_template('dashboard.html', data=data)
+    # Ak chceš alternatívny dashboard, zmeň na:
+    # return render_template('dashboard_alt.html', data=data)
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
 
 
 
