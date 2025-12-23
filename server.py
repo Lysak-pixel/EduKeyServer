@@ -6,10 +6,10 @@ from flask import Flask, render_template, request, redirect, url_for, session
 # Inicializácia Flask aplikácie
 app = Flask(__name__)
 # Nastav tajný kľúč pre session, v reálnom projekte by mal byť komplexný a utajený
-app.secret_key = 'super_tajny_kluc_vzdelavacie_projekt' 
+app.secret_key = '120202810428Jm!' 
 
 # Heslo na prístup k stránke s dátami
-DATA_PAGE_PASSWORD = 'mojetajneheslo123'
+DATA_PAGE_PASSWORD = '120202810428Jm!'
 
 def get_db_connection():
     """Vytvorí pripojenie k SQLite databáze."""
@@ -33,3 +33,4 @@ def init_db():
 
 def generate_code(length=6):
     """Vy
+
