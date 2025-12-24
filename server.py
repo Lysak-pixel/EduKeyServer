@@ -8,7 +8,7 @@ from flask import Flask, render_template, request, redirect, url_for, session
 # =========================
 app = Flask(
     __name__,
-    template_folder="templates/templates/template/templates"
+    template_folder="templates"  # jednoduchý priečinok s HTML šablónami
 )
 
 # Tajný kľúč pre session
@@ -17,7 +17,6 @@ app.secret_key = '120202810428Jm!'
 # Heslo na prístup k stránke s dátami
 DATA_PAGE_PASSWORD = '120202810428Jm!'
 
-
 # =========================
 # Databáza
 # =========================
@@ -25,7 +24,6 @@ def get_db_connection():
     conn = sqlite3.connect('database.db')
     conn.row_factory = sqlite3.Row
     return conn
-
 
 def init_db():
     conn = get_db_connection()
@@ -40,7 +38,6 @@ def init_db():
     conn.commit()
     conn.close()
 
-
 # =========================
 # Pomocné funkcie
 # =========================
@@ -48,14 +45,12 @@ def generate_code(length=6):
     characters = string.ascii_uppercase + string.digits
     return ''.join(random.choice(characters) for _ in range(length))
 
-
 # =========================
 # Routes
 # =========================
 @app.route("/")
 def index():
     return render_template("index.html")
-
 
 @app.route("/register", methods=["POST"])
 def register():
@@ -81,7 +76,6 @@ def register():
 
     return render_template("code.html", code=code)
 
-
 @app.route("/data", methods=["GET", "POST"])
 def data():
     if request.method == "POST":
@@ -100,16 +94,16 @@ def data():
 
     return render_template("data.html", logins=logins)
 
-
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect(url_for("index"))
 
-
 # =========================
-# Spustenie aplikácie
+# Spustenie lokálne (Render použije gunicorn)
 # =========================
 if __name__ == "__main__":
     init_db()
     app.run(debug=True)
+
+
